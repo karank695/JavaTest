@@ -1,118 +1,71 @@
-package Test;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Scanner;
-import java.util.regex.*;
+package prep.interview;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-public class FileOutputTest {
-
-//function to create Table schema information in metadata file;
-	public static void createTable(String query) throws IOException {
-		// create Table Customer(col1 type1 constraint1,col2 type2 constraint2);
-		try {
-			FileOutputStream fout = new FileOutputStream("c://JavaTest/metadata.txt");
-			int lastIndexOfTable = 0;
-			int stIndexOfOB = 0;
-			int stIndexOfCB = 0;
-			Pattern table = Pattern.compile("table");
-			Matcher m = table.matcher(query.toLowerCase());
-			if (m.find()) {
-				lastIndexOfTable = m.end();
+public class Test {
+//function to find list of integer to find double target sum
+	public static void subsetSum(ArrayList<Integer> al, int targetSum, Set<ArrayList<Integer>> set) {
+		int i = 0, j = 0, sum = 0;
+		ArrayList<Integer> temp = new ArrayList<>();
+		while (j < al.size()) {
+			sum += al.get(j);
+			temp.add(al.get(j));
+			if (sum < targetSum) {
+				j++;
+			} else if (sum == targetSum) {
+				set.add(temp);
+				j++;
+			} else {
+				while (sum > targetSum) {
+					int x = temp.remove(0);
+					sum -= x;
+					i++;
+				}
+				j++;
 			}
-			stIndexOfOB = query.indexOf("(");
-			stIndexOfCB = query.lastIndexOf(")");
-			String tableName = query.substring(lastIndexOfTable + 1, stIndexOfOB);
-			String colInfo = query.substring(stIndexOfOB + 1, stIndexOfCB);
-			String[] col = colInfo.split(",");
-			byte[] t = tableName.getBytes();
-			fout.write(t);
-			fout.write(13);
-			for (int i = 0; i < col.length; i++) {
-				String s = col[i].trim();
-				byte[] b = s.getBytes();
-				fout.write(b);
-				fout.write(13);
-			}
-			fout.close();
-			System.out.println(
-					"Table created successfully ****** info is available in metadata.txt file in javaTest folder of c drive");
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		}
 	}
 
-//function to insert values in data_file;
-	public static void insertValues(String query) {
-		// insert into
-		// Customer(col1,col2,col3)VALUES("Ramayan","56","mahabharat"),("Karan","87","Kishan");
-		String values = "";
-		Pattern p = Pattern.compile("values");
-		Matcher m = p.matcher(query.toLowerCase());
-		int endIndexOfVal = 0;
-		if (m.find()) {
-			endIndexOfVal = m.end();
-		}
-		Pattern p1 = Pattern.compile("\\(");
-		Matcher m1 = p1.matcher(query.toLowerCase());
-		if (m1.find(endIndexOfVal)) {
-			values = query.substring(m1.end() - 1);
-		}
-		ArrayList<ArrayList<Integer>> al = new ArrayList<>();
-		ArrayList<Integer> index = new ArrayList<>();
-		for (int i = 0; i < values.length(); i++) {
-			if (values.charAt(i) == '(') {
-				index.add(i);
-			} else if (values.charAt(i) == ')') {
-				index.add(i);
+//function to get list of integer corresponding to target sum
+	public static void solve(int a[], int sum) {
+		Set<ArrayList<Integer>> set = new HashSet<>();
+		for (int i = 0; i < a.length; i++) {
+			int j = i + 1;
+			HashSet<Integer> hs = new HashSet<>();
+			ArrayList<Integer> al = new ArrayList<>();
+			while (j < a.length) {
+				if (a[i] + a[j] == sum) {
+					al.add(a[i]);
+					al.add(a[j]);
+					Collections.sort(al);
+					set.add(al);
+				}
+				j++;
 			}
-			if (index.size() == 2) {
-				al.add(index);
-				index = new ArrayList<>();
-			}
-		}
-		try {
-			FileOutputStream fout = new FileOutputStream("c://JavaTest/data.txt");
-			for (int i = 0; i < al.size(); i++) {
-				String data = values.substring(al.get(i).get(0) + 1, al.get(i).get(1));
-				System.out.println(data);
-				data = data.replaceAll("\\,", " ");
-				data = data.replaceAll("[\'\"]", "");
-				System.out.println(data);
-				byte[] b = data.getBytes();
-				fout.write(b);
-				fout.write(13);
-			}
-			System.out.println(
-					"values inserted into table successfully ************** you can find it on data.txt file in javaTest folder of c drive");
-		} catch (Exception e) {
-			System.out.println(e);
-		}
-	}
 
-	public static void main(String arg[]) throws IOException {
-		System.out.println("************ Enter your sql query *************");
-		Scanner sc = new Scanner(System.in);
-		String query = sc.nextLine().trim();
-		try {
-			File file = new File("c://JavaTest");
-			if (!file.isDirectory()) {
-				file.mkdir();
-			}
-		} catch (Exception e) {
-			System.out.println(e);
 		}
-		if (query.toLowerCase().contains("create table")) {
-			createTable(query);
-		} else if (query.toLowerCase().contains("insert into")) {
-			insertValues(query);
-		} else {
-			System.out.println("query syntax error *******");
+		System.out.println("target sum is: " + sum);
+		System.out.println("Integer list for target sum:");
+		System.out.println(set);
+		ArrayList<Integer> newList = new ArrayList<>();
+		for (ArrayList<Integer> ele : set) {
+			newList.add(ele.get(0));
+			newList.add(ele.get(1));
 		}
+		System.out.println("After merging all list");
+		System.out.println(newList);
+		int targetSum = 2 * sum;
+		System.out.println("Now the target sum is: " + targetSum);
+		subsetSum(newList, targetSum, set);
+		System.out.println(set);
 
 	}
 
+	public static void main(String args[]) {
+		int a[] = { 1, 3, 2, 2, -4, -6, -2, 8 };
+		solve(a, 4);
+
+	}
 }
